@@ -95,6 +95,7 @@ export default function App() {
     if (user && !notifShown && comerciosHoy.length > 0) {
       setTimeout(() => { setShowNotif(true); setNotifShown(true); }, 800);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const login = () => {
