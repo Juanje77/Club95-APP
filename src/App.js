@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { QRCodeSVG as QRCode } from 'qrcode.react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB8U78q9OabXopXBP2_TNu0AqMgi63v4sw",
+  authDomain: "app-club95.firebaseapp.com",
+  projectId: "app-club95",
+  storageBucket: "app-club95.firebasestorage.app",
+  messagingSenderId: "866738204928",
+  appId: "1:866738204928:web:0caaca11ff134bf4ab43e5"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
 
 // ─── THEME ───────────────────────────────────────────────────────
 const T = {
@@ -98,14 +114,91 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const login = () => {
-    const u = Object.values(USERS).find(u => u.email === email && u.password === password);
-    if (u) { setUser(u); setScreen('app'); setTab('home'); setError(''); }
-    else setError('Email o contraseña incorrectos');
-  };
 
   // ── LOGIN ──
-  if (screen === 'login') return (
+  const [loadingAuth, setLoadingAuth] = useState(false);
+  const [regName, setRegName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPass, setRegPass] = useState('');
+  const [regPlan, setRegPlan] = useState('black');
+  const [authScreen, setAuthScreen] = useState('login');
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const snap = await getDoc(doc(db, 'users', firebaseUser.uid));
+        if (snap.exists()) {
+          setUser({ uid: firebaseUser.uid, ...snap.data() });
+          setScreen('app');
+        }
+      }
+      setLoadingAuth(false);
+    });
+    return unsub;
+  }, []);
+
+  const login = async () => {
+    setError('');
+    setLoadingAuth(true);
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      const snap = await getDoc(doc(db, 'users', cred.user.uid));
+      if (snap.exists()) {
+        setUser({ uid: cred.user.uid, ...snap.data() });
+        setScreen('app');
+        setTab('home');
+      }
+    } catch (e) {
+      setError('Email o contraseña incorrectos');
+    }
+    setLoadingAuth(false);
+  };
+
+  const register = async () => {
+    setError('');
+    if (!regName.trim() || !regEmail.trim() || regPass.length < 6) {
+      setError('Completá todos los campos. Mínimo 6 caracteres.');
+      return;
+    }
+    setLoadingAuth(true);
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, regEmail.trim(), regPass);
+      const userData = {
+        uid: cred.user.uid,
+        email: regEmail.trim(),
+        displayName: regName.trim(),
+        plan: regPlan,
+        totalSaved: 0,
+        cortesRestantes: regPlan === 'gold' ? 2 : 1,
+        cortesTotales: regPlan === 'gold' ? 2 : 1,
+        vencimiento: '30 Abr 2026',
+        createdAt: serverTimestamp(),
+      };
+      await setDoc(doc(db, 'users', cred.user.uid), userData);
+      setUser({ uid: cred.user.uid, ...userData });
+      setScreen('app');
+      setTab('home');
+    } catch (e) {
+      setError(e.message);
+    }
+    setLoadingAuth(false);
+  };
+
+  const logout = async () => {
+    await signOut(auth);
+    setUser(null);
+    setScreen('login');
+    setNotifShown(false);
+  };
+
+  if (loadingAuth) return (
+    <div style={{ ...styles.root, ...styles.center }}>
+      <p style={styles.logo}>CLUB<span style={{ color: T.primary }}>95.</span></p>
+      <p style={{ color: T.muted, fontSize: 14, marginTop: 16 }}>Cargando...</p>
+    </div>
+  );
+
+  if (screen === 'login' && authScreen === 'login') return (
     <div style={styles.root}>
       <div style={styles.center}>
         <p style={styles.logo}>CLUB<span style={{ color: T.primary }}>95.</span></p>
@@ -114,15 +207,62 @@ export default function App() {
           onChange={e => setEmail(e.target.value)} type='email' />
         <input style={styles.input} placeholder='Contraseña' value={password}
           onChange={e => setPassword(e.target.value)} type='password' />
-        {error && <p style={{ color: T.red, fontSize: 13, marginBottom: 12 }}>{error}</p>}
-        <button style={styles.btn} onClick={login}>Ingresar</button>
-        <p style={{ color: T.muted, fontSize: 12, marginTop: 20, textAlign: 'center' }}>
-          Gold: carlos@mail.com / 123456<br />Black: martin@mail.com / 123456
-        </p>
+        {error && <p style={{ color: '#EF4444', fontSize: 13, marginBottom: 12 }}>{error}</p>}
+        <button style={styles.btn} onClick={login} disabled={loadingAuth}>
+          {loadingAuth ? 'Ingresando...' : 'Ingresar'}
+        </button>
+        <button style={styles.btnGhost} onClick={() => { setAuthScreen('register'); setError(''); }}>
+          ¿No tenés cuenta? Registrate
+        </button>
       </div>
     </div>
   );
 
+  if (screen === 'login' && authScreen === 'register') return (
+    <div style={styles.root}>
+      <div style={styles.center}>
+        <p style={styles.logo}>CLUB<span style={{ color: T.primary }}>95.</span></p>
+        <p style={styles.subtitle}>Crear cuenta</p>
+        <input style={styles.input} placeholder='Nombre completo' value={regName}
+          onChange={e => setRegName(e.target.value)} />
+        <input style={styles.input} placeholder='Email' value={regEmail}
+          onChange={e => setRegEmail(e.target.value)} type='email' />
+        <input style={styles.input} placeholder='Contraseña (mín. 6 caracteres)' value={regPass}
+          onChange={e => setRegPass(e.target.value)} type='password' />
+
+        {/* Selector de plan */}
+        <p style={{
+          color: T.muted, fontSize: 12, textTransform: 'uppercase',
+          letterSpacing: 0.8, marginBottom: 10, alignSelf: 'flex-start'
+        }}>Elegí tu plan</p>
+        <div style={{ display: 'flex', gap: 10, width: '100%', marginBottom: 16 }}>
+          {[
+            { id: 'black', label: '⬛ Black', desc: '1 corte/mes · Todos los comercios', price: '$4.999/mes' },
+            { id: 'gold', label: '🥇 Gold', desc: '2 cortes/mes · Comercios seleccionados', price: '$8.999/mes' },
+          ].map(p => (
+            <div key={p.id} onClick={() => setRegPlan(p.id)} style={{
+              flex: 1, padding: 14, borderRadius: 14, cursor: 'pointer',
+              backgroundColor: regPlan === p.id ? T.surfaceAlt : T.surface,
+              border: `2px solid ${regPlan === p.id ? T.primary : T.border}`,
+              textAlign: 'center',
+            }}>
+              <p style={{ fontWeight: 900, fontSize: 15, margin: 0, marginBottom: 4 }}>{p.label}</p>
+              <p style={{ color: T.muted, fontSize: 10, margin: 0, marginBottom: 6 }}>{p.desc}</p>
+              <p style={{ color: T.primary, fontWeight: 800, fontSize: 12, margin: 0 }}>{p.price}</p>
+            </div>
+          ))}
+        </div>
+
+        {error && <p style={{ color: '#EF4444', fontSize: 13, marginBottom: 12 }}>{error}</p>}
+        <button style={styles.btn} onClick={register} disabled={loadingAuth}>
+          {loadingAuth ? 'Creando cuenta...' : 'Crear cuenta'}
+        </button>
+        <button style={styles.btnGhost} onClick={() => { setAuthScreen('login'); setError(''); }}>
+          ¿Ya tenés cuenta? Iniciá sesión
+        </button>
+      </div>
+    </div>
+  );
   // ── DETALLE COMERCIO ──
   if (selectedComercio) {
     const c = selectedComercio;
