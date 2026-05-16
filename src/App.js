@@ -28,19 +28,15 @@ const T = {
 const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
 const COMERCIOS = [
-  { id: '1', nombre: 'FitZone Gym', categoria: 'Salud', emoji: '💪', descuentoBlack: 20, descuentoGold: 15, dias: ['Lun', 'Mié', 'Vie'], planes: ['black', 'gold'], direccion: 'Av. Siempre Viva 123', tel: '2954-123456' },
-  { id: '2', nombre: 'Café Negro', categoria: 'Gastronomía', emoji: '☕', descuentoBlack: 15, descuentoGold: 10, dias: ['Mar', 'Jue', 'Sáb'], planes: ['black', 'gold'], direccion: 'San Martín 456', tel: '2954-234567' },
-  { id: '3', nombre: 'StyleStore', categoria: 'Ropa', emoji: '👔', descuentoBlack: 25, descuentoGold: 20, dias: ['Lun', 'Sáb'], planes: ['black', 'gold'], direccion: 'Pellegrini 789', tel: '2954-345678' },
+  { id: '1', nombre: 'MarioDrago Gym', categoria: 'Salud', emoji: '💪', descuentoBlack: 10, descuentoGold: 10, dias: ['Lun', 'Mié', 'Vie'], planes: ['black', 'gold'], direccion: 'Av. Siempre Viva 123', tel: '2954-123456' },
+  { id: '2', nombre: 'Lima Focacceria', categoria: 'Gastronomía', emoji: '☕', descuentoBlack: 15, descuentoGold: 10, dias: ['Mar', 'Jue', 'Sáb'], planes: ['black', 'gold'], direccion: 'San Martín 456', tel: '2954-234567' },
+  { id: '3', nombre: 'Bernabe.co', categoria: 'Ropa', emoji: '👔', descuentoBlack: 25, descuentoGold: 20, dias: ['Lun', 'Sáb'], planes: ['black', 'gold'], direccion: 'Pellegrini 789', tel: '2954-345678' },
   { id: '4', nombre: 'AutoLav Express', categoria: 'Automotor', emoji: '🚗', descuentoBlack: 30, descuentoGold: null, dias: ['Mié', 'Sáb'], planes: ['black'], direccion: 'Ruta 35 km 2', tel: '2954-456789' },
   { id: '5', nombre: 'Farmacia Vital', categoria: 'Salud', emoji: '💊', descuentoBlack: 10, descuentoGold: null, dias: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'], planes: ['black'], direccion: 'Av. Uruguay 321', tel: '2954-567890' },
   { id: '6', nombre: 'Pizza Bros', categoria: 'Gastronomía', emoji: '🍕', descuentoBlack: 20, descuentoGold: 15, dias: ['Jue', 'Vie', 'Sáb', 'Dom'], planes: ['black', 'gold'], direccion: 'Italia 654', tel: '2954-678901' },
-  { id: '7', nombre: 'Barbería Central', categoria: 'Servicios', emoji: '✂️', descuentoBlack: 15, descuentoGold: 15, dias: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'], planes: ['black', 'gold'], direccion: 'Mitre 987', tel: '2954-789012' },
+  { id: '7', nombre: 'Barbería', categoria: 'Servicios', emoji: '✂️', descuentoBlack: 20, descuentoGold: 15, dias: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'], planes: ['black', 'gold'], direccion: 'Mitre 987', tel: '2954-789012' },
 ];
 
-const USERS = {
-  'uid_carlos': { uid: 'uid_carlos', email: 'carlos@mail.com', password: '123456', displayName: 'Carlos Méndez', plan: 'gold', totalSaved: 12450, cortesRestantes: 1, cortesTotales: 2, vencimiento: '30 Abr 2025' },
-  'uid_martin': { uid: 'uid_martin', email: 'martin@mail.com', password: '123456', displayName: 'Martín López', plan: 'black', totalSaved: 4320, cortesRestantes: 0, cortesTotales: 1, vencimiento: '15 May 2025' },
-};
 
 const TRANSACTIONS = [
   { id: 'tx1', userId: 'uid_carlos', merchantName: 'FitZone Gym', amount: 8000, discount: 15, saved: 1200, date: '15 Mar 2025' },
@@ -183,14 +179,12 @@ export default function App() {
     }
     setLoadingAuth(false);
   };
-
-  const logout = async () => {
+  async function logout() {
     await signOut(auth);
     setUser(null);
     setScreen('login');
     setNotifShown(false);
-  };
-
+  }
   if (loadingAuth) return (
     <div style={{ ...styles.root, ...styles.center }}>
       <p style={styles.logo}>CLUB<span style={{ color: T.primary }}>95.</span></p>
@@ -648,11 +642,10 @@ export default function App() {
         </div>
       ))}
 
-      <button style={styles.btnGhost}
-        onClick={() => { setUser(null); setScreen('login'); setNotifShown(false); }}>
+      <button style={styles.btnGhost} onClick={logout}>
         Cerrar sesión
       </button>
-    </div>
+    </div >
   );
 
   return (
