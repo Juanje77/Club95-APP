@@ -39,13 +39,6 @@ const COMERCIOS = [
 
 
 const [transactions, setTransactions] = useState([]);
-{ id: 'tx1', userId: 'uid_carlos', merchantName: 'FitZone Gym', amount: 8000, discount: 15, saved: 1200, date: '15 Mar 2025' },
-{ id: 'tx2', userId: 'uid_carlos', merchantName: 'Café Negro', amount: 2500, discount: 10, saved: 250, date: '24 Mar 2025' },
-{ id: 'tx3', userId: 'uid_carlos', merchantName: 'Barbería Central', amount: 1500, discount: 15, saved: 225, date: '10 Mar 2025' },
-{ id: 'tx4', userId: 'uid_martin', merchantName: 'StyleStore', amount: 5000, discount: 25, saved: 1250, date: '20 Mar 2025' },
-{ id: 'tx5', userId: 'uid_martin', merchantName: 'Pizza Bros', amount: 3000, discount: 20, saved: 600, date: '22 Mar 2025' },
-];
-
 const PLAN_CONFIG = {
   black: { label: '⬛ Black', color: '#C0C0C0', bg: '#2a2a2a', cortes: 1 },
   gold: { label: '🥇 Gold', color: '#D4A017', bg: '#B8860B', cortes: 2 },
