@@ -70,7 +70,6 @@ export default function App() {
   const [screen, setScreen] = useState('login');
   const [tab, setTab] = useState('home');
   const [user, setUser] = useState(null);
-  const [transactions, setTransactions] = useState([]);
   const [email, setEmail] = useState('carlos@mail.com');
   const [password, setPassword] = useState('123456');
   const [error, setError] = useState('');
