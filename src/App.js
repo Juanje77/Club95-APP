@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { QRCodeSVG as QRCode } from 'qrcode.react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, query, where, orderBy, onSnapshot, updateDoc, increment } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyB8U78q9OabXopXBP2_TNu0AqMgi63v4sw",
@@ -38,12 +38,12 @@ const COMERCIOS = [
 ];
 
 
-const TRANSACTIONS = [
-  { id: 'tx1', userId: 'uid_carlos', merchantName: 'FitZone Gym', amount: 8000, discount: 15, saved: 1200, date: '15 Mar 2025' },
-  { id: 'tx2', userId: 'uid_carlos', merchantName: 'Café Negro', amount: 2500, discount: 10, saved: 250, date: '24 Mar 2025' },
-  { id: 'tx3', userId: 'uid_carlos', merchantName: 'Barbería Central', amount: 1500, discount: 15, saved: 225, date: '10 Mar 2025' },
-  { id: 'tx4', userId: 'uid_martin', merchantName: 'StyleStore', amount: 5000, discount: 25, saved: 1250, date: '20 Mar 2025' },
-  { id: 'tx5', userId: 'uid_martin', merchantName: 'Pizza Bros', amount: 3000, discount: 20, saved: 600, date: '22 Mar 2025' },
+const [transactions, setTransactions] = useState([]);
+{ id: 'tx1', userId: 'uid_carlos', merchantName: 'FitZone Gym', amount: 8000, discount: 15, saved: 1200, date: '15 Mar 2025' },
+{ id: 'tx2', userId: 'uid_carlos', merchantName: 'Café Negro', amount: 2500, discount: 10, saved: 250, date: '24 Mar 2025' },
+{ id: 'tx3', userId: 'uid_carlos', merchantName: 'Barbería Central', amount: 1500, discount: 15, saved: 225, date: '10 Mar 2025' },
+{ id: 'tx4', userId: 'uid_martin', merchantName: 'StyleStore', amount: 5000, discount: 25, saved: 1250, date: '20 Mar 2025' },
+{ id: 'tx5', userId: 'uid_martin', merchantName: 'Pizza Bros', amount: 3000, discount: 20, saved: 600, date: '22 Mar 2025' },
 ];
 
 const PLAN_CONFIG = {
@@ -109,6 +109,16 @@ export default function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  // Escuchar transacciones en tiempo real
+  const q = query(
+    collection(db, 'transactions'),
+    where('userId', '==', firebaseUser.uid),
+    orderBy('createdAt', 'desc')
+  );
+  onSnapshot(q, snap => {
+    setTransactions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+  });
 
 
   // ── LOGIN ──
