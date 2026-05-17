@@ -78,7 +78,7 @@ export default function App() {
   const [selectedComercio, setSelectedComercio] = useState(null);
   const [showNotif, setShowNotif] = useState(false);
   const [notifShown, setNotifShown] = useState(false);
-  const [transactions] = useState(TRANSACTIONS);
+  const [transactions, setTransactions] = useState([]);
 
   const myTx = transactions.filter(t => t.userId === user?.uid);
   const totalSaved = myTx.reduce((s, t) => s + t.saved, 0);
