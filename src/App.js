@@ -37,8 +37,6 @@ const COMERCIOS = [
   { id: '7', nombre: 'Barbería', categoria: 'Servicios', emoji: '✂️', descuentoBlack: 20, descuentoGold: 15, dias: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'], planes: ['black', 'gold'], direccion: 'Mitre 987', tel: '2954-789012' },
 ];
 
-
-const [transactions, setTransactions] = useState([]);
 const PLAN_CONFIG = {
   black: { label: '⬛ Black', color: '#C0C0C0', bg: '#2a2a2a', cortes: 1 },
   gold: { label: '🥇 Gold', color: '#D4A017', bg: '#B8860B', cortes: 2 },
