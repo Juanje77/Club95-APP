@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { QRCodeSVG as QRCode } from 'qrcode.react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp, collection, query, where, orderBy, onSnapshot, updateDoc, increment } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, serverTimestamp, collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyB8U78q9OabXopXBP2_TNu0AqMgi63v4sw",
@@ -74,6 +74,7 @@ export default function App() {
   const [filterCat, setFilter] = useState('Todos');
   const [selectedComercio, setSelectedComercio] = useState(null);
   const [showNotif, setShowNotif] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [notifShown, setNotifShown] = useState(false);
   const [transactions, setTransactions] = useState([]);
 
