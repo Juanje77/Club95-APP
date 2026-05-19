@@ -97,23 +97,17 @@ export default function App() {
   })).sort((a, b) => b.totalAhorrado - a.totalAhorrado).filter(c => c.totalAhorrado > 0);
 
   useEffect(() => {
-    if (user && !notifShown && comerciosHoy.length > 0) {
-      setTimeout(() => { setShowNotif(true); setNotifShown(true); }, 800);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!user) return;
+    const q = query(
+      collection(db, 'transactions'),
+      where('userId', '==', user.uid),
+      orderBy('createdAt', 'desc')
+    );
+    const unsub = onSnapshot(q, snap => {
+      setTransactions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return unsub;
   }, [user]);
-
-  // Escuchar transacciones en tiempo real
-  const q = query(
-    collection(db, 'transactions'),
-    where('userId', '==', firebaseUser.uid),
-    orderBy('createdAt', 'desc')
-  );
-  onSnapshot(q, snap => {
-    setTransactions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-  });
-
-
   // ── LOGIN ──
   const [loadingAuth, setLoadingAuth] = useState(false);
   const [regName, setRegName] = useState('');
